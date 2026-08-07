@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import swisseph as swe
+from planets import calculate_planets
 
 app = FastAPI()
 
