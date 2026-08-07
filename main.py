@@ -34,6 +34,7 @@ lagna = calculate_lagna(
     lat,
     lon
 )
+
 return {
     "status": "Success",
     "planets": planets
