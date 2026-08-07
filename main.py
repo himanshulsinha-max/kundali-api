@@ -37,5 +37,6 @@ lagna = calculate_lagna(
 
 return {
     "status": "Success",
+    "lagna": lagna,
     "planets": planets
 }
