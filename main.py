@@ -56,7 +56,6 @@ def calculate_kundli(data: KundliRequest):
     nakshatras = calculate_all_nakshatras(
     planets
 )
-    from house_mapping import calculate_house_mapping
 
     return {
     "status": "Success",
