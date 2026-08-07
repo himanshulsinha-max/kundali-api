@@ -3,7 +3,6 @@ import swisseph as swe
 
 app = FastAPI()
 
-# Vedic Astrology ke liye Lahiri Ayanamsha
 swe.set_sid_mode(swe.SIDM_LAHIRI)
 
 @app.post("/calculate_kundli")
@@ -11,7 +10,7 @@ def calculate_kundli(data: dict):
     year = int(data.get("year"))
     month = int(data.get("month"))
     day = int(data.get("day"))
-    hour = float(data.get("hour")) # e.g. 14.5 for 2:30 PM
+    hour = float(data.get("hour"))
     lat = float(data.get("lat"))
     lon = float(data.get("lon"))
 
