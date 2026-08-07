@@ -4,6 +4,7 @@ import swisseph as swe
 
 from planets import calculate_planets
 from lagna import calculate_lagna
+from houses import calculate_houses
 
 app = FastAPI()
 
@@ -40,8 +41,15 @@ def calculate_kundli(data: KundliRequest):
         lon
     )
 
+    houses = calculate_houses(
+    julian_day,
+    lat,
+    lon
+)
+
     return {
-        "status": "Success",
-        "planets": planets,
-        "lagna": lagna
-    }
+    "status": "Success",
+    "lagna": lagna,
+    "planets": planets,
+    "houses": houses
+}
