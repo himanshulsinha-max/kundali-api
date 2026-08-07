@@ -1,18 +1,28 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 import swisseph as swe
 
 app = FastAPI()
 
+class KundliRequest(BaseModel):
+    year: int
+    month: int
+    day: int
+    hour: float
+    lat: float
+    lon: float
+
+
 swe.set_sid_mode(swe.SIDM_LAHIRI)
 
 @app.post("/calculate_kundli")
-def calculate_kundli(data: dict):
-    year = int(data.get("year"))
-    month = int(data.get("month"))
-    day = int(data.get("day"))
-    hour = float(data.get("hour"))
-    lat = float(data.get("lat"))
-    lon = float(data.get("lon"))
+def calculate_kundli(data: KundliRequest):
+    year = data.year
+    month = data.month
+    day = data.day
+    hour = data.hour
+    lat = data.lat
+    lon = data.lon
 
     julian_day = swe.julday(year, month, day, hour)
 
