@@ -63,5 +63,6 @@ def calculate_kundli(data: KundliRequest):
     "lagna": lagna,
     "planets": planets,
     "houses": houses,
-    "planet_house": planet_house
+    "planet_house": planet_house,
+    "nakshatras": nakshatras
     }
