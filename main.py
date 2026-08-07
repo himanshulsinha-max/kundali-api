@@ -19,6 +19,7 @@ swe.set_sid_mode(swe.SIDM_LAHIRI)
 
 @app.post("/calculate_kundli")
 def calculate_kundli(data: KundliRequest):
+    
     year = data.year
     month = data.month
     day = data.day
