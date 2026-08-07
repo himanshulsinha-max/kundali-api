@@ -46,10 +46,12 @@ def calculate_kundli(data: KundliRequest):
     lat,
     lon
 )
+    from house_mapping import calculate_house_mapping
 
     return {
     "status": "Success",
     "lagna": lagna,
     "planets": planets,
-    "houses": houses
-}
+    "houses": houses,
+    "planet_house": planet_house
+    }
