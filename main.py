@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import swisseph as swe
 from planets import calculate_planets
+from lagna import calculate_lagna
 
 app = FastAPI()
 
@@ -28,7 +29,11 @@ def calculate_kundli(data: KundliRequest):
     julian_day = swe.julday(year, month, day, hour)
 
    planets = calculate_planets(julian_day)
-
+lagna = calculate_lagna(
+    julian_day,
+    lat,
+    lon
+)
 return {
     "status": "Success",
     "planets": planets
