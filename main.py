@@ -45,25 +45,30 @@ def calculate_kundli(data: KundliRequest):
     )
 
     houses = calculate_houses(
-    julian_day,
-    lat,
-    lon
-)
+        julian_day,
+        lat,
+        lon
+    )
+
     planet_house = calculate_house_mapping(
-    planets,
-    houses
-)
+        planets,
+        houses
+    )
 
     nakshatras = calculate_all_nakshatras(
-    planets
-)
+        planets
+    )
 
-   return {
-    "status": "Success",
-    "lagna": lagna,
-    "planets": planets,
-    "houses": houses,
-    "planet_house": planet_house,
-    "nakshatras": nakshatras,
-    "mahadasha": mahadasha
-}
+    mahadasha = get_mahadasha(
+        nakshatras["Moon"]
+    )
+
+    return {
+        "status": "Success",
+        "lagna": lagna,
+        "planets": planets,
+        "houses": houses,
+        "planet_house": planet_house,
+        "nakshatras": nakshatras,
+        "mahadasha": mahadasha
+    }
