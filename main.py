@@ -7,6 +7,7 @@ from lagna import calculate_lagna
 from houses import calculate_houses
 from house_mapping import calculate_house_mapping
 from nakshatra import calculate_all_nakshatras
+from dasha import get_mahadasha
 
 app = FastAPI()
 
@@ -57,11 +58,12 @@ def calculate_kundli(data: KundliRequest):
     planets
 )
 
-    return {
+   return {
     "status": "Success",
     "lagna": lagna,
     "planets": planets,
     "houses": houses,
     "planet_house": planet_house,
-    "nakshatras": nakshatras
-    }
+    "nakshatras": nakshatras,
+    "mahadasha": mahadasha
+}
