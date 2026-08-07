@@ -5,6 +5,8 @@ import swisseph as swe
 from planets import calculate_planets
 from lagna import calculate_lagna
 from houses import calculate_houses
+from house_mapping import calculate_house_mapping
+from nakshatra import calculate_all_nakshatras
 
 app = FastAPI()
 
@@ -45,6 +47,14 @@ def calculate_kundli(data: KundliRequest):
     julian_day,
     lat,
     lon
+)
+    planet_house = calculate_house_mapping(
+    planets,
+    houses
+)
+
+    nakshatras = calculate_all_nakshatras(
+    planets
 )
     from house_mapping import calculate_house_mapping
 
