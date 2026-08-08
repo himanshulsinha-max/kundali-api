@@ -17,9 +17,12 @@ class KundliRequest(BaseModel):
     year: int
     month: int
     day: int
-    hour: float
+    hour: int
+    minute: int
+    second: int = 0
     lat: float
     lon: float
+    timezone: str
 
 
 swe.set_sid_mode(swe.SIDM_LAHIRI)
