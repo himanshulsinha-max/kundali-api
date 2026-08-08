@@ -32,6 +32,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Iterable
 
+from yoga_strength import build_yoga_strength_engine
+
 
 # ---------------------------------------------------------------------------
 # HOUSE GROUPS
@@ -994,6 +996,59 @@ def build_yoga_engine(
         "yogas": yogas,
         "detected_yogas": detected,
         "count": len(detected),
+    }
+
+
+
+
+# ---------------------------------------------------------------------------
+# COMPLETE YOGA ANALYSIS
+# ---------------------------------------------------------------------------
+
+def build_complete_yoga_analysis(
+    planets: Dict[str, Dict[str, Any]],
+    house_lords: Dict[int, str],
+    planet_house_mapping: Dict[str, Any],
+    relationship_data: Optional[Dict[str, Any]] = None,
+    aspect_data: Optional[Dict[str, Any]] = None,
+    grah_data: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Run Yoga detection first, then evaluate the strength/affliction layer.
+
+    This is the integration entry point for the Yoga subsystem.
+
+    Pipeline:
+        build_yoga_engine()
+            ->
+        build_yoga_strength_engine()
+    """
+
+    yoga_data = build_yoga_engine(
+        planets=planets,
+        house_lords=house_lords,
+        planet_house_mapping=planet_house_mapping,
+        relationship_data=relationship_data,
+        aspect_data=aspect_data,
+    )
+
+    strength_data = build_yoga_strength_engine(
+        yoga_data=yoga_data,
+        planets=planets,
+        house_lords=house_lords,
+        planet_house_mapping=planet_house_mapping,
+        relationship_data=relationship_data,
+        aspect_data=aspect_data,
+        grah_data=grah_data,
+    )
+
+    return {
+        "engine": "complete_yoga_analysis",
+        "version": "1.0",
+        "yoga_detection": yoga_data,
+        "yoga_strength": strength_data,
+        "detected_count": yoga_data.get("count", 0),
+        "evaluated_count": strength_data.get("count", 0),
     }
 
 
