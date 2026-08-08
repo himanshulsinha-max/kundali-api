@@ -10,6 +10,7 @@ from nakshatra import calculate_all_nakshatras
 from moon_balance import get_nakshatra_balance
 from dasha import get_mahadasha
 from core.time_engine import calculate_julian_day
+from planetary_strength import calculate_strength
 
 from d1_whole_sign import build_d1_whole_sign
 from planet_relationships import build_planet_relationships, get_sign_lord
@@ -71,6 +72,10 @@ def calculate_kundli(data: KundliRequest):
     # Planetary positions
     # -------------------------
     planets = calculate_planets(julian_day)
+        # -------------------------
+    # Planetary Strength / Dignity
+    # -------------------------
+    planetary_strength = calculate_strength(planets)
 
     # -------------------------
     # Lagna
@@ -194,33 +199,27 @@ def calculate_kundli(data: KundliRequest):
     return {
         "status": "Success",
 
-        # Core calculation layers
         "lagna": lagna,
         "planets": planets,
         "houses": houses,
 
-        # Existing mapping retained for backward compatibility
         "planet_house": planet_house,
 
-        # Authoritative D1 Whole-Sign layer for Vedic relationship/Yoga logic
         "d1": d1,
         "d1_planet_house": d1_planet_house,
         "house_lords": house_lords,
 
-        # Relationship + Drishti data layers
         "planet_relationships": relationship_data,
         "planet_aspects": aspect_data,
 
-        # Yoga detection + strength/affliction
+        "planetary_strength": planetary_strength,
+
         "yoga_analysis": yoga_analysis,
 
-        # Step 1 — Ashtakavarga actual engine
-       "ashtakavarga": ashtakavarga,
+        "ashtakavarga": ashtakavarga,
 
-# Divisional Charts
-"divisional_charts": divisional_charts,
+        "divisional_charts": divisional_charts,
 
-# Existing timing layers
         "nakshatras": nakshatras,
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
