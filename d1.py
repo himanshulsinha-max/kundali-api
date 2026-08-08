@@ -1,11 +1,9 @@
-# d1.py
-
 from d1_whole_sign import build_d1_whole_sign
 
 
-def build_d1_chart(lagna_data, planet_data):
+def calculate_d1(lagna_data, planets_data):
     """
-    Build D1 chart using already-calculated
+    Build D1 Whole-Sign chart from already calculated
     Lagna and planetary positions.
     """
 
@@ -13,5 +11,5 @@ def build_d1_chart(lagna_data, planet_data):
 
     return build_d1_whole_sign(
         ascendant_sign,
-        planet_data
+        planets_data
     )
