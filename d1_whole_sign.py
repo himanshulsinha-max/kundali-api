@@ -1,6 +1,10 @@
 from aspects import build_aspects
+from planet_strength import build_planet_dignities
 
 def build_d1_whole_sign(ascendant_sign, planets):
+    planet_dignities = build_planet_dignities(
+    planets
+)
 
     ascendant_sign = normalize_sign(
         ascendant_sign
