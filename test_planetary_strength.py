@@ -60,3 +60,5 @@ for planet in expected_planets:
 
 print("PLANETARY STRENGTH TEST: PASS")
 print(json.dumps(strengths, indent=2))
+
+# CI trigger marker: planetary-strength test workflow.
