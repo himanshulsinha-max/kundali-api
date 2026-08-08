@@ -9,6 +9,7 @@ from house_mapping import calculate_house_mapping
 from nakshatra import calculate_all_nakshatras
 from moon_balance import get_nakshatra_balance
 from dasha import get_mahadasha
+from core.time_engine import calculate_julian_day
 
 app = FastAPI()
 
@@ -38,8 +39,15 @@ def calculate_kundli(data: KundliRequest):
     lat = data.lat
     lon = data.lon
 
-    julian_day = swe.julday(year, month, day, hour)
-
+   julian_day = calculate_julian_day(
+    year,
+    month,
+    day,
+    hour,
+    data.minute,
+    data.second,
+    data.timezone
+)
     planets = calculate_planets(julian_day)
 
     lagna = calculate_lagna(
