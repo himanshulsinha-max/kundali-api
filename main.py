@@ -222,29 +222,3 @@ def calculate_kundli(data: KundliRequest):
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
     }
-@app.get("/test_divisional_charts")
-def test_divisional_charts():
-
-    planets = {
-        "Sun": {
-            "sign": "Aries",
-            "longitude": 10.0,
-        },
-        "Moon": {
-            "sign": "Taurus",
-            "longitude": 45.0,
-        },
-        "Mars": {
-            "sign": "Gemini",
-            "longitude": 75.0,
-        },
-    }
-
-    result = build_divisional_charts(planets)
-
-    return {
-        "status": "passed",
-        "message": "Divisional chart engine is working",
-        "supported_vargas": result["supported_vargas"],
-        "charts": result["charts"],
-    }
