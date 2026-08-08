@@ -1,3 +1,4 @@
+from house_lords import build_house_lords
 # d1_whole_sign.py
 
 SIGNS = [
