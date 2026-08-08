@@ -16,6 +16,7 @@ from planet_relationships import build_planet_relationships, get_sign_lord
 from planet_aspects import build_aspect_engine
 from yoga_engine import build_complete_yoga_analysis
 from ashtakavarga import build_ashtakavarga
+from divisional_charts import build_divisional_charts
 
 
 app = FastAPI()
@@ -212,4 +213,30 @@ def calculate_kundli(data: KundliRequest):
         "nakshatras": nakshatras,
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
+    }
+@app.get("/test_divisional_charts")
+def test_divisional_charts():
+
+    planets = {
+        "Sun": {
+            "sign": "Aries",
+            "longitude": 10.0,
+        },
+        "Moon": {
+            "sign": "Taurus",
+            "longitude": 45.0,
+        },
+        "Mars": {
+            "sign": "Gemini",
+            "longitude": 75.0,
+        },
+    }
+
+    result = build_divisional_charts(planets)
+
+    return {
+        "status": "passed",
+        "message": "Divisional chart engine is working",
+        "supported_vargas": result["supported_vargas"],
+        "charts": result["charts"],
     }
