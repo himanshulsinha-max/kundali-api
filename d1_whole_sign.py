@@ -44,6 +44,7 @@ def build_d1_whole_sign(ascendant_sign, planets):
         "houses": houses,
 
         "house_lords": house_lords,
+        "planet_dignities": planet_dignities,
 
         "planet_house_mapping":
             planet_house_mapping,
