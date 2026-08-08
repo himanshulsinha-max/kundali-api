@@ -3,13 +3,12 @@
 import swisseph as swe
 
 
-# Vedic astrology standard used by this project
+# Primary sidereal zodiac configuration
 AYANAMSHA = swe.SIDM_LAHIRI
 
 
 def configure_sidereal():
     """
-    Configure Swiss Ephemeris for sidereal calculations.
-    Must be called before calculating Lagna or planets.
+    Configure Swiss Ephemeris for Lahiri sidereal calculations.
     """
     swe.set_sid_mode(AYANAMSHA)
