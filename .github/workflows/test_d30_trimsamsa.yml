@@ -1,0 +1,27 @@
+name: Test D30 Trimsamsa
+
+on:
+  push:
+    paths:
+      - "d30_trimsamsa.py"
+      - "test_d30_trimsamsa.py"
+      - ".github/workflows/test_d30_trimsamsa.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run D30 tests
+        run: |
+          python -m pip install --upgrade pip
+          python test_d30_trimsamsa.py
