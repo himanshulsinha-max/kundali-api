@@ -1,10 +1,15 @@
 from aspects import build_aspects
 from planet_strength import build_planet_dignities
+from functional_nature import build_functional_profiles
 
 def build_d1_whole_sign(ascendant_sign, planets):
     planet_dignities = build_planet_dignities(
     planets
 )
+    functional_profiles = build_functional_profiles(
+    ascendant_sign
+)
+    "functional_profiles": functional_profiles,
 
     ascendant_sign = normalize_sign(
         ascendant_sign
