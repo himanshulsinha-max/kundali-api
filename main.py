@@ -158,6 +158,14 @@ def calculate_kundli(data: KundliRequest):
         lagna_sign=lagna["sign"],
     )
 
+        # -------------------------
+    # Divisional Charts
+    # -------------------------
+    # Core Parashari Vargas currently implemented and validated:
+    # D1, D2, D3, D4, D7, D9, D10, D12
+    divisional_charts = build_divisional_charts(
+        planets=planets
+    )
     # -------------------------
     # Nakshatras
     # -------------------------
