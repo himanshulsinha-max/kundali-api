@@ -71,7 +71,7 @@ def calculate_lagna(julian_day, latitude, longitude):
             get_degree_in_sign(asc),
             8
         )
-    }):
+    }
 
     # We only need the Ascendant.
     # D1 houses will be calculated separately
