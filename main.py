@@ -15,6 +15,7 @@ from d1_whole_sign import build_d1_whole_sign
 from planet_relationships import build_planet_relationships, get_sign_lord
 from planet_aspects import build_aspect_engine
 from yoga_engine import build_complete_yoga_analysis
+from ashtakavarga import build_ashtakavarga
 
 
 app = FastAPI()
@@ -146,6 +147,17 @@ def calculate_kundli(data: KundliRequest):
     )
 
     # -------------------------
+    # Ashtakavarga
+    # -------------------------
+    # Raw BAV/SAV is calculated from the same authoritative sidereal
+    # planetary signs and Whole-Sign Lagna used by the D1 engine.
+    # Rahu/Ketu are deliberately ignored by the Ashtakavarga engine.
+    ashtakavarga = build_ashtakavarga(
+        planets=planets,
+        lagna_sign=lagna["sign"],
+    )
+
+    # -------------------------
     # Nakshatras
     # -------------------------
     nakshatras = calculate_all_nakshatras(
@@ -193,16 +205,11 @@ def calculate_kundli(data: KundliRequest):
         # Yoga detection + strength/affliction
         "yoga_analysis": yoga_analysis,
 
+        # Step 1 — Ashtakavarga actual engine
+        "ashtakavarga": ashtakavarga,
+
         # Existing timing layers
         "nakshatras": nakshatras,
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
-
-"ashtakavarga": {
-    "bhinnashtakavarga": {},
-    "sarvashtakavarga": {},
-    "house_scores": {},
-    "reduced_bhinnashtakavarga": {},
-    "validation": {}
-}
-}
+    }
