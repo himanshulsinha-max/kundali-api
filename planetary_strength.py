@@ -3,7 +3,7 @@ Planetary Strength / Dignity Engine
 -----------------------------------
 
 Calculates classical Vedic planetary dignity and basic strength
-from the already-calculated planetary positions.
+from the planetary positions already calculated by planets.py.
 
 This module does NOT calculate planetary longitude.
 It consumes the output of planets.py.
@@ -17,20 +17,16 @@ Current scope:
 - Neutral sign
 - Enemy sign
 - Basic dignity score
+- Deep exaltation / debilitation degree markers
 - Combustion
 - Retrograde status
-- Overall dignity classification
 
-Designed as a standalone engine.
-Do not integrate into main.py until independently tested.
+This is NOT Shadbala.
+Shadbala will be implemented as a separate engine.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-
-# -------------------------------------------------------------------
-# PLANET DEFINITIONS
-# -------------------------------------------------------------------
 
 PLANETS = [
     "Sun",
@@ -42,10 +38,6 @@ PLANETS = [
     "Saturn",
 ]
 
-
-# -------------------------------------------------------------------
-# SIGN DEFINITIONS
-# -------------------------------------------------------------------
 
 SIGNS = [
     "Aries",
@@ -63,94 +55,68 @@ SIGNS = [
 ]
 
 
-# -------------------------------------------------------------------
-# PLANET LORDS
-# -------------------------------------------------------------------
-
 SIGN_LORDS = {
-    0: "Mars",       # Aries
-    1: "Venus",      # Taurus
-    2: "Mercury",    # Gemini
-    3: "Moon",       # Cancer
-    4: "Sun",        # Leo
-    5: "Mercury",    # Virgo
-    6: "Venus",      # Libra
-    7: "Mars",       # Scorpio
-    8: "Jupiter",    # Sagittarius
-    9: "Saturn",     # Capricorn
-    10: "Saturn",    # Aquarius
-    11: "Jupiter",   # Pisces
+    0: "Mars",
+    1: "Venus",
+    2: "Mercury",
+    3: "Moon",
+    4: "Sun",
+    5: "Mercury",
+    6: "Venus",
+    7: "Mars",
+    8: "Jupiter",
+    9: "Saturn",
+    10: "Saturn",
+    11: "Jupiter",
 }
 
 
-# -------------------------------------------------------------------
-# EXALTATION
-# Sign index + exact exaltation degree
-# -------------------------------------------------------------------
-
+# Planet: (sign index, deepest exaltation degree)
 EXALTATION = {
-    "Sun": (0, 10.0),       # Aries 10°
-    "Moon": (1, 3.0),       # Taurus 3°
-    "Mars": (9, 28.0),      # Capricorn 28°
-    "Mercury": (5, 15.0),   # Virgo 15°
-    "Jupiter": (3, 5.0),    # Cancer 5°
-    "Venus": (11, 27.0),    # Pisces 27°
-    "Saturn": (6, 20.0),    # Libra 20°
+    "Sun": (0, 10.0),
+    "Moon": (1, 3.0),
+    "Mars": (9, 28.0),
+    "Mercury": (5, 15.0),
+    "Jupiter": (3, 5.0),
+    "Venus": (11, 27.0),
+    "Saturn": (6, 20.0),
 }
 
 
-# -------------------------------------------------------------------
-# DEBILITATION
-# -------------------------------------------------------------------
-
+# Planet: (sign index, deepest debilitation degree)
 DEBILITATION = {
-    "Sun": (6, 10.0),       # Libra 10°
-    "Moon": (7, 3.0),       # Scorpio 3°
-    "Mars": (3, 28.0),      # Cancer 28°
-    "Mercury": (11, 15.0),  # Pisces 15°
-    "Jupiter": (9, 5.0),    # Capricorn 5°
-    "Venus": (5, 27.0),     # Virgo 27°
-    "Saturn": (0, 20.0),    # Aries 20°
+    "Sun": (6, 10.0),
+    "Moon": (7, 3.0),
+    "Mars": (3, 28.0),
+    "Mercury": (11, 15.0),
+    "Jupiter": (9, 5.0),
+    "Venus": (5, 27.0),
+    "Saturn": (0, 20.0),
 }
 
 
-# -------------------------------------------------------------------
-# MOOLATRIKONA
-#
-# Classical commonly-used ranges.
-# -------------------------------------------------------------------
-
+# Planet: (sign index, start degree, end degree)
 MOOLATRIKONA = {
-    "Sun": (4, 0.0, 20.0),       # Leo 0°–20°
-    "Moon": (1, 4.0, 30.0),      # Taurus 4°–30°
-    "Mars": (0, 0.0, 12.0),      # Aries 0°–12°
-    "Mercury": (5, 16.0, 20.0),  # Virgo 16°–20°
-    "Jupiter": (8, 0.0, 10.0),   # Sagittarius 0°–10°
-    "Venus": (6, 0.0, 15.0),    # Libra 0°–15°
-    "Saturn": (10, 0.0, 20.0),   # Aquarius 0°–20°
+    "Sun": (4, 0.0, 20.0),
+    "Moon": (1, 4.0, 30.0),
+    "Mars": (0, 0.0, 12.0),
+    "Mercury": (5, 16.0, 20.0),
+    "Jupiter": (8, 0.0, 10.0),
+    "Venus": (6, 0.0, 15.0),
+    "Saturn": (10, 0.0, 20.0),
 }
 
-
-# -------------------------------------------------------------------
-# OWN SIGNS
-# -------------------------------------------------------------------
 
 OWN_SIGNS = {
-    "Sun": [4],                 # Leo
-    "Moon": [3],                # Cancer
-    "Mars": [0, 7],             # Aries, Scorpio
-    "Mercury": [2, 5],          # Gemini, Virgo
-    "Jupiter": [8, 11],         # Sagittarius, Pisces
-    "Venus": [1, 6],            # Taurus, Libra
-    "Saturn": [9, 10],          # Capricorn, Aquarius
+    "Sun": [4],
+    "Moon": [3],
+    "Mars": [0, 7],
+    "Mercury": [2, 5],
+    "Jupiter": [8, 11],
+    "Venus": [1, 6],
+    "Saturn": [9, 10],
 }
 
-
-# -------------------------------------------------------------------
-# NATURAL FRIENDSHIP
-#
-# Classical natural relationship table.
-# -------------------------------------------------------------------
 
 NATURAL_RELATIONSHIPS = {
     "Sun": {
@@ -191,13 +157,6 @@ NATURAL_RELATIONSHIPS = {
 }
 
 
-# -------------------------------------------------------------------
-# DIGNITY SCORES
-#
-# These are ENGINE classification scores, not Shadbala.
-# Do not confuse this with the later Shadbala module.
-# -------------------------------------------------------------------
-
 DIGNITY_SCORES = {
     "exalted": 5,
     "moolatrikona": 4,
@@ -209,31 +168,33 @@ DIGNITY_SCORES = {
 }
 
 
-# -------------------------------------------------------------------
-# HELPER FUNCTIONS
-# -------------------------------------------------------------------
+COMBUSTION_LIMITS = {
+    "Moon": None,
+    "Mars": 17.0,
+    "Mercury": 14.0,
+    "Jupiter": 11.0,
+    "Venus": 10.0,
+    "Saturn": 15.0,
+}
+
 
 def normalize_degree(degree: float) -> float:
-    """Keep degree inside 0°–30°."""
+    """Keep degree inside 0 <= degree < 30."""
     return max(0.0, min(float(degree), 29.999999))
 
 
 def get_sign_index(planet_data: Dict[str, Any]) -> int:
-    """
-    Extract sign index from planets.py output.
-    """
+    """Extract sign index from planets.py output."""
     if "sign_index" in planet_data:
-        return int(planet_data["sign_index"])
+        sign_index = int(planet_data["sign_index"])
+        if 0 <= sign_index <= 11:
+            return sign_index
+        raise ValueError("sign_index must be between 0 and 11.")
 
     sign = planet_data.get("sign")
 
     if isinstance(sign, str):
-        if sign in SIGNS:
-            return SIGNS.index(sign)
-
-        # Handle common capitalization differences
         normalized = sign.strip().capitalize()
-
         if normalized in SIGNS:
             return SIGNS.index(normalized)
 
@@ -243,10 +204,7 @@ def get_sign_index(planet_data: Dict[str, Any]) -> int:
 
 
 def get_degree_in_sign(planet_data: Dict[str, Any]) -> float:
-    """
-    Extract degree within the sign from planets.py output.
-    """
-
+    """Extract degree within the sign from planets.py output."""
     if "degree_in_sign" in planet_data:
         return normalize_degree(planet_data["degree_in_sign"])
 
@@ -258,117 +216,74 @@ def get_degree_in_sign(planet_data: Dict[str, Any]) -> float:
         seconds = float(dms.get("seconds", 0))
 
         return normalize_degree(
-            degrees + (minutes / 60.0) + (seconds / 3600.0)
+            degrees + minutes / 60.0 + seconds / 3600.0
         )
 
     raise ValueError(
-        "Planet data must contain 'degree_in_sign' "
-        "or 'degree_dms'."
+        "Planet data must contain 'degree_in_sign' or 'degree_dms'."
     )
 
 
 def get_sign_name(sign_index: int) -> str:
-    """Return sign name from index."""
+    """Return sign name from sign index."""
     if sign_index < 0 or sign_index > 11:
         raise ValueError("sign_index must be between 0 and 11.")
-
     return SIGNS[sign_index]
 
 
 def get_sign_lord(sign_index: int) -> str:
-    """Return lord of a zodiac sign."""
+    """Return the classical lord of a zodiac sign."""
     if sign_index not in SIGN_LORDS:
         raise ValueError("Invalid sign index.")
-
     return SIGN_LORDS[sign_index]
 
-
-# -------------------------------------------------------------------
-# DIGNITY CALCULATION
-# -------------------------------------------------------------------
 
 def calculate_dignity(
     planet: str,
     sign_index: int,
     degree_in_sign: float,
 ) -> Dict[str, Any]:
-    """
-    Calculate classical planetary dignity.
-    """
-
+    """Calculate classical planetary dignity."""
     if planet not in PLANETS:
         raise ValueError(f"Unsupported planet: {planet}")
 
-    degree_in_sign = normalize_degree(degree_in_sign)
+    if not 0 <= sign_index <= 11:
+        raise ValueError("sign_index must be between 0 and 11.")
 
+    degree_in_sign = normalize_degree(degree_in_sign)
     sign_name = get_sign_name(sign_index)
     sign_lord = get_sign_lord(sign_index)
 
-    dignity = "neutral_sign"
-    score = DIGNITY_SCORES["neutral_sign"]
-
-    # ---------------------------------------------------------------
-    # Exaltation
-    # ---------------------------------------------------------------
-
     exalt_sign, exalt_degree = EXALTATION[planet]
-
-    if sign_index == exalt_sign:
-        if abs(degree_in_sign - exalt_degree) < 0.0001:
-            dignity = "exalted"
-            score = DIGNITY_SCORES["exalted"]
-
-    # ---------------------------------------------------------------
-    # Debilitation
-    # ---------------------------------------------------------------
-
     debil_sign, debil_degree = DEBILITATION[planet]
-
-    if sign_index == debil_sign:
-        if abs(degree_in_sign - debil_degree) < 0.0001:
-            dignity = "debilitated"
-            score = DIGNITY_SCORES["debilitated"]
-
-    # ---------------------------------------------------------------
-    # Moolatrikona
-    # ---------------------------------------------------------------
-
     mt_sign, mt_start, mt_end = MOOLATRIKONA[planet]
 
-    if (
-        sign_index == mt_sign
-        and mt_start <= degree_in_sign <= mt_end
-    ):
+    # Dignity is based on the entire exaltation/debilitation sign.
+    # The exact degree is the deepest exaltation/debilitation point.
+    if sign_index == exalt_sign:
+        dignity = "exalted"
+        score = DIGNITY_SCORES[dignity]
+    elif sign_index == debil_sign:
+        dignity = "debilitated"
+        score = DIGNITY_SCORES[dignity]
+    elif sign_index == mt_sign and mt_start <= degree_in_sign < mt_end:
         dignity = "moolatrikona"
-        score = DIGNITY_SCORES["moolatrikona"]
-
-    # ---------------------------------------------------------------
-    # Own sign
-    # ---------------------------------------------------------------
-
-    if sign_index in OWN_SIGNS[planet]:
+        score = DIGNITY_SCORES[dignity]
+    elif sign_index in OWN_SIGNS[planet]:
         dignity = "own_sign"
-        score = DIGNITY_SCORES["own_sign"]
+        score = DIGNITY_SCORES[dignity]
+    else:
+        relationship = NATURAL_RELATIONSHIPS[planet]
 
-    # ---------------------------------------------------------------
-    # Natural relationship with sign lord
-    # ---------------------------------------------------------------
-
-    if sign_lord == planet:
-        dignity = "own_sign"
-        score = DIGNITY_SCORES["own_sign"]
-
-    elif sign_lord in NATURAL_RELATIONSHIPS[planet]["friends"]:
-        dignity = "friendly_sign"
-        score = DIGNITY_SCORES["friendly_sign"]
-
-    elif sign_lord in NATURAL_RELATIONSHIPS[planet]["enemies"]:
-        dignity = "enemy_sign"
-        score = DIGNITY_SCORES["enemy_sign"]
-
-    elif sign_lord in NATURAL_RELATIONSHIPS[planet]["neutral"]:
-        dignity = "neutral_sign"
-        score = DIGNITY_SCORES["neutral_sign"]
+        if sign_lord in relationship["friends"]:
+            dignity = "friendly_sign"
+            score = DIGNITY_SCORES[dignity]
+        elif sign_lord in relationship["enemies"]:
+            dignity = "enemy_sign"
+            score = DIGNITY_SCORES[dignity]
+        else:
+            dignity = "neutral_sign"
+            score = DIGNITY_SCORES[dignity]
 
     return {
         "planet": planet,
@@ -378,32 +293,18 @@ def calculate_dignity(
         "sign_lord": sign_lord,
         "dignity": dignity,
         "dignity_score": score,
+        "exaltation_sign": get_sign_name(exalt_sign),
         "exaltation_degree": exalt_degree,
+        "is_deep_exaltation": abs(degree_in_sign - exalt_degree) < 0.0001,
+        "debilitation_sign": get_sign_name(debil_sign),
         "debilitation_degree": debil_degree,
+        "is_deep_debilitation": abs(degree_in_sign - debil_degree) < 0.0001,
     }
 
 
-# -------------------------------------------------------------------
-# COMBUSTION
-# -------------------------------------------------------------------
-
-COMBUSTION_LIMITS = {
-    "Moon": None,
-    "Mars": 17.0,
-    "Mercury": 14.0,
-    "Jupiter": 11.0,
-    "Venus": 10.0,
-    "Saturn": 15.0,
-}
-
-
 def angular_distance(longitude1: float, longitude2: float) -> float:
-    """
-    Calculate smallest angular distance between two longitudes.
-    """
-
-    difference = abs(longitude1 - longitude2) % 360.0
-
+    """Return the smallest angular distance between two longitudes."""
+    difference = abs(float(longitude1) - float(longitude2)) % 360.0
     return min(difference, 360.0 - difference)
 
 
@@ -412,19 +313,13 @@ def calculate_combustion(
     planet_data: Dict[str, Any],
     sun_data: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """
-    Calculate basic combustion using angular distance from Sun.
-
-    Note:
-    Traditional combustion rules have school-specific variations.
-    This engine keeps the threshold explicit and configurable.
-    """
-
+    """Calculate basic combustion from angular distance to the Sun."""
     if planet == "Sun":
         return {
             "combust": False,
             "distance_from_sun": 0.0,
             "combustion_limit": None,
+            "status": "not_applicable",
         }
 
     limit = COMBUSTION_LIMITS.get(planet)
@@ -434,6 +329,7 @@ def calculate_combustion(
             "combust": False,
             "distance_from_sun": None,
             "combustion_limit": None,
+            "status": "not_applicable",
         }
 
     if "longitude" not in planet_data:
@@ -453,31 +349,24 @@ def calculate_combustion(
         }
 
     distance = angular_distance(
-        float(planet_data["longitude"]),
-        float(sun_data["longitude"]),
+        planet_data["longitude"],
+        sun_data["longitude"],
     )
 
     return {
         "combust": distance <= limit,
         "distance_from_sun": round(distance, 6),
         "combustion_limit": limit,
+        "status": "calculated",
     }
 
-
-# -------------------------------------------------------------------
-# SINGLE PLANET STRENGTH
-# -------------------------------------------------------------------
 
 def calculate_planetary_strength(
     planet: str,
     planet_data: Dict[str, Any],
-    sun_data: Dict[str, Any] | None = None,
+    sun_data: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """
-    Calculate dignity and basic strength information
-    for one planet.
-    """
-
+    """Calculate dignity and basic strength information for one planet."""
     sign_index = get_sign_index(planet_data)
     degree_in_sign = get_degree_in_sign(planet_data)
 
@@ -487,19 +376,18 @@ def calculate_planetary_strength(
         degree_in_sign=degree_in_sign,
     )
 
-    retrograde = bool(planet_data.get("retrograde", False))
-
     result = {
         **dignity,
-        "retrograde": retrograde,
+        "retrograde": bool(planet_data.get("retrograde", False)),
         "combustion": {
             "combust": False,
             "distance_from_sun": None,
             "combustion_limit": None,
+            "status": "not_calculated",
         },
     }
 
-    if sun_data is not None and planet != "Sun":
+    if sun_data is not None:
         result["combustion"] = calculate_combustion(
             planet=planet,
             planet_data=planet_data,
@@ -509,32 +397,14 @@ def calculate_planetary_strength(
     return result
 
 
-# -------------------------------------------------------------------
-# ALL PLANETS
-# -------------------------------------------------------------------
-
 def calculate_planetary_strengths(
-    planets_data: Dict[str, Dict[str, Any]]
+    planets_data: Dict[str, Dict[str, Any]],
 ) -> Dict[str, Dict[str, Any]]:
-    """
-    Calculate planetary strength/dignity for all supported planets.
-
-    Expected input:
-
-    {
-        "Sun": {...},
-        "Moon": {...},
-        "Mars": {...},
-        ...
-    }
-    """
-
+    """Calculate planetary dignity/strength for all supported planets."""
     results = {}
-
     sun_data = planets_data.get("Sun")
 
     for planet in PLANETS:
-
         if planet not in planets_data:
             continue
 
@@ -547,17 +417,8 @@ def calculate_planetary_strengths(
     return results
 
 
-# -------------------------------------------------------------------
-# PUBLIC API ALIAS
-# -------------------------------------------------------------------
-
 def calculate_strength(
-    planets_data: Dict[str, Dict[str, Any]]
+    planets_data: Dict[str, Dict[str, Any]],
 ) -> Dict[str, Dict[str, Any]]:
-    """
-    Public API alias.
-
-    Keeps the module easy to integrate into main.py later.
-    """
-
+    """Public integration alias for later use by main.py."""
     return calculate_planetary_strengths(planets_data)
