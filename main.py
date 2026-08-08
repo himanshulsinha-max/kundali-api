@@ -19,9 +19,16 @@ from yoga_engine import build_complete_yoga_analysis
 from ashtakavarga import build_ashtakavarga
 from divisional_charts import build_divisional_charts
 
+from transits import get_transits
+from transit_facts import get_transit_facts
+
 
 app = FastAPI()
 
+
+# ============================================================
+# REQUEST MODELS
+# ============================================================
 
 class KundliRequest(BaseModel):
     year: int
@@ -35,9 +42,38 @@ class KundliRequest(BaseModel):
     timezone: str
 
 
-# Lahiri Ayanamsha
+class TransitRequest(BaseModel):
+    # Natal / birth details
+    birth_year: int
+    birth_month: int
+    birth_day: int
+    birth_hour: int
+    birth_minute: int
+    birth_second: int = 0
+    birth_lat: float
+    birth_lon: float
+    birth_timezone: str
+
+    # Date/time for which transit is required
+    transit_year: int
+    transit_month: int
+    transit_day: int
+    transit_hour: int
+    transit_minute: int
+    transit_second: int = 0
+    transit_timezone: str
+
+
+# ============================================================
+# LAHIRI AYANAMSHA
+# ============================================================
+
 swe.set_sid_mode(swe.SIDM_LAHIRI)
 
+
+# ============================================================
+# NATAL KUNDLI
+# ============================================================
 
 @app.post("/calculate_kundli")
 def calculate_kundli(data: KundliRequest):
@@ -72,7 +108,8 @@ def calculate_kundli(data: KundliRequest):
     # Planetary positions
     # -------------------------
     planets = calculate_planets(julian_day)
-        # -------------------------
+
+    # -------------------------
     # Planetary Strength / Dignity
     # -------------------------
     planetary_strength = calculate_strength(planets)
@@ -106,9 +143,6 @@ def calculate_kundli(data: KundliRequest):
     # -------------------------
     # D1 Whole-Sign chart
     # -------------------------
-    # This is the authoritative D1 mapping for Yoga/relationship logic.
-    # The existing `houses` and `planet_house` outputs are retained for
-    # backward compatibility with the current API.
     d1 = build_d1_whole_sign(
         lagna["sign"],
         planets
@@ -117,7 +151,9 @@ def calculate_kundli(data: KundliRequest):
     d1_houses = d1["houses"]
     d1_planet_house = d1["planet_house_mapping"]
 
-    # House lord = lord of the sign occupying that Whole-Sign house.
+    # -------------------------
+    # House lords
+    # -------------------------
     house_lords = {
         house_number: get_sign_lord(
             house_data["sign"]
@@ -155,22 +191,18 @@ def calculate_kundli(data: KundliRequest):
     # -------------------------
     # Ashtakavarga
     # -------------------------
-    # Raw BAV/SAV is calculated from the same authoritative sidereal
-    # planetary signs and Whole-Sign Lagna used by the D1 engine.
-    # Rahu/Ketu are deliberately ignored by the Ashtakavarga engine.
     ashtakavarga = build_ashtakavarga(
         planets=planets,
         lagna_sign=lagna["sign"],
     )
 
-        # -------------------------
+    # -------------------------
     # Divisional Charts
     # -------------------------
-    # Core Parashari Vargas currently implemented and validated:
-    # D1, D2, D3, D4, D7, D9, D10, D12
     divisional_charts = build_divisional_charts(
         planets=planets
     )
+
     # -------------------------
     # Nakshatras
     # -------------------------
@@ -223,4 +255,96 @@ def calculate_kundli(data: KundliRequest):
         "nakshatras": nakshatras,
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
+    }
+
+
+# ============================================================
+# TRANSIT ENGINE
+# ============================================================
+
+@app.post("/calculate_transits")
+def calculate_transits_endpoint(data: TransitRequest):
+
+    # --------------------------------------------------------
+    # 1. Calculate natal Julian Day
+    # --------------------------------------------------------
+
+    natal_julian_day = calculate_julian_day(
+        data.birth_year,
+        data.birth_month,
+        data.birth_day,
+        data.birth_hour,
+        data.birth_minute,
+        data.birth_second,
+        data.birth_timezone
+    )
+
+    # --------------------------------------------------------
+    # 2. Calculate natal planets
+    # --------------------------------------------------------
+
+    natal_planets = calculate_planets(
+        natal_julian_day
+    )
+
+    # --------------------------------------------------------
+    # 3. Calculate natal Lagna
+    # --------------------------------------------------------
+
+    natal_lagna = calculate_lagna(
+        natal_julian_day,
+        data.birth_lat,
+        data.birth_lon
+    )
+
+    # --------------------------------------------------------
+    # 4. Calculate transit Julian Day
+    # --------------------------------------------------------
+
+    transit_julian_day = calculate_julian_day(
+        data.transit_year,
+        data.transit_month,
+        data.transit_day,
+        data.transit_hour,
+        data.transit_minute,
+        data.transit_second,
+        data.transit_timezone
+    )
+
+    # --------------------------------------------------------
+    # 5. Swiss Ephemeris transit calculation
+    # --------------------------------------------------------
+
+    transit_planets = get_transits(
+        transit_julian_day
+    )
+
+    # --------------------------------------------------------
+    # 6. Build interpretation-neutral transit facts
+    # --------------------------------------------------------
+
+    transit_facts = get_transit_facts(
+        transit_planets=transit_planets,
+        natal_planets=natal_planets,
+        lagna=natal_lagna,
+    )
+
+    # --------------------------------------------------------
+    # 7. Final response
+    # --------------------------------------------------------
+
+    return {
+        "status": "Success",
+
+        "natal": {
+            "lagna": natal_lagna,
+            "planets": natal_planets,
+        },
+
+        "transit": {
+            "julian_day": transit_julian_day,
+            "planets": transit_planets,
+        },
+
+        "transit_facts": transit_facts,
     }
