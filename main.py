@@ -215,9 +215,12 @@ def calculate_kundli(data: KundliRequest):
         "yoga_analysis": yoga_analysis,
 
         # Step 1 — Ashtakavarga actual engine
-        "ashtakavarga": ashtakavarga,
+       "ashtakavarga": ashtakavarga,
 
-        # Existing timing layers
+# Divisional Charts
+"divisional_charts": divisional_charts,
+
+# Existing timing layers
         "nakshatras": nakshatras,
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
