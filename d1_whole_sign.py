@@ -1,3 +1,5 @@
+from aspects import build_aspects
+
 def build_d1_whole_sign(ascendant_sign, planets):
 
     ascendant_sign = normalize_sign(
@@ -23,6 +25,10 @@ def build_d1_whole_sign(ascendant_sign, planets):
         ascendant_sign
     )
 
+    aspects = build_aspects(
+        planet_house_mapping
+    )
+
     return {
         "chart": "D1",
         "house_system": "whole_sign",
@@ -37,4 +43,6 @@ def build_d1_whole_sign(ascendant_sign, planets):
 
         "planet_house_mapping":
             planet_house_mapping,
+
+        "aspects": aspects,
     }
