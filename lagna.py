@@ -1,5 +1,5 @@
 import swisseph as swe
-
+from astro_config import configure_sidereal
 
 SIGNS = [
     "Aries",
@@ -50,6 +50,28 @@ def get_degree_in_sign(longitude):
 
 
 def calculate_lagna(julian_day, latitude, longitude):
+
+    configure_sidereal()
+
+    houses, ascmc = swe.houses_ex(
+        julian_day,
+        latitude,
+        longitude,
+        b'P',
+        swe.FLG_SIDEREAL
+    )
+
+    asc = normalize_longitude(ascmc[0])
+
+    return {
+        "longitude": round(asc, 8),
+        "sign": get_sign_name(asc),
+        "sign_index": get_sign_index(asc),
+        "degree_in_sign": round(
+            get_degree_in_sign(asc),
+            8
+        )
+    }):
 
     # We only need the Ascendant.
     # D1 houses will be calculated separately
