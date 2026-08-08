@@ -198,3 +198,10 @@ def calculate_kundli(data: KundliRequest):
         "moon_balance": moon_balance,
         "mahadasha": mahadasha,
     }
+    "ashtakavarga": {
+  "bhinnashtakavarga": {},
+  "sarvashtakavarga": {},
+  "house_scores": {},
+  "reduced_bhinnashtakavarga": {},
+  "validation": {}
+}
